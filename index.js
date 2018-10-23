@@ -1,5 +1,6 @@
 const express=require('express');
 const app=express();
+require('dotenv').config() 
 
 const bodyParser=require('body-parser');
 const urlencodedParser=bodyParser.urlencoded({extended:false})
@@ -11,7 +12,7 @@ app.use(urlencodedParser);
 
 //sequelize
 const Sequelize = require('sequelize');
-const connection = new Sequelize('rest_api','postgres','password',{
+const connection = new Sequelize('rest_api','postgres',process.env.password,{
   dialect:'postgres',operatorsAliases: true
 });
 
@@ -41,7 +42,7 @@ app.get('/api/home',(req,res)=>{
     res.send("happyness");
     });
 
-//listing all
+// Listing all
 app.get('/api/users',(req,res)=>{
     Users.findAll().then(function(users){
       res.send(users);
@@ -69,7 +70,7 @@ app.post('/api/users/new',(req,res)=>{
       res.send(users);
     });
   })
-  
+
 
 })
 
