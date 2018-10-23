@@ -2,61 +2,106 @@ const express=require('express');
 const app=express();
 
 const bodyParser=require('body-parser');
-const urlencodedParser=bodyParser.urlencoded({extended:true})
+const urlencodedParser=bodyParser.urlencoded({extended:false})
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
+app.use(urlencodedParser);
 
-let users=[
-  { id:0, name: 'user1'},
-  { id:1, name: 'user2'},
-  { id:2, name: 'user3'},
-  { id:3, name: 'user4'}];
 
+//sequelize
+const Sequelize = require('sequelize');
+const connection = new Sequelize('rest_api','postgres','password',{
+  dialect:'postgres',operatorsAliases: true
+});
+
+//connection
+const Users = connection.define('users',{
+  name:Sequelize.STRING
+});
+
+
+//dummy users
+Users.create({
+    name:'user1'
+  })
+Users.create({
+    name:'nithin'
+  })
+  Users.create({
+    name:'user3'
+  })
+  Users.create({
+    name:'user4'
+  })
+
+//homepage
+app.get('/api/home',(req,res)=>{
+
+    res.send("happyness");
+    });
 
 //listing all
-app.get('/api/home',(req,res)=>{
-  //res.send("here:");
-  res.send(users);
+app.get('/api/users',(req,res)=>{
+    Users.findAll().then(function(users){
+      res.send(users);
+    });
 })
 
 //picking one
-app.get('/api/home/:id',(req,res)=>{
+app.get('/api/users/:id',(req,res)=>{
   //console.log(req);
-  const user = users.find(c => c.id === parseInt(req.params.id));
-  res.send(user);
+  const user = parseInt(req.params.id);
+  Users.findById(user).then(function(users){
+    res.send(users.dataValues);
+  });
 })
 
-app.post('/api/home/new/:id',(req,res)=>{
+
+//addingnewuser
+app.post('/api/users/new',(req,res)=>{
 //console.log(req);
-  const user={
-    id : users.length+1,
-    name:req.body.name
-  }
-  users.push(user);
-  res.send(user);
+
+  Users.create({
+    name: req.body.name
+  }).then(()=>{
+    Users.findAll().then(function(users){
+      res.send(users);
+    });
+  })
+  
+
 })
-
-
-
-
 
 //update
-app.post('/api/home/update/:id',(req,res)=>{
-  const user = users.find(c => c.id === parseInt(req.params.id));
-  user.name = req.body.name
-  res.send(user);
-})
+app.post('/api/users/update/:id',(req,res)=>{
+  const user = parseInt(req.params.id);
 
+  Users.findById(user).then(function(users){
+    users.name = req.body.name
+    users.save().then(() => {
+    Users.findAll().then(function(users){
+      res.send(users);
+    });})
+  });
+
+})
 
 //delete
-app.get('/api/home/delete/:id',(req,res)=>{
-  const user = users.find(c => c.id === parseInt(req.params.id));
-//  user.name = req.body.name
-  var index = users.indexOf(user.id);
-  users.splice(index,1);
-  res.send(users);
+app.get('/api/users/delete/:id',(req,res)=>{
+  const user = parseInt(req.params.id);
+  Users.destroy({
+    where:{
+      id:user
+    }
+  }).then(()=>{
+    Users.findAll().then(function(users){
+      res.send(users);
+  })
+//  res.send("deleted");
+
+  });
 })
 
-
-app.listen(3000,() => console.log("listening on 3000"));
+//listening
+app.listen(1081,() => console.log("listening on 1081"));

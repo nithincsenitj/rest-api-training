@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": null,
+    "database": "rest_api",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "nithin",
+    "password": "password",
+    "database": "rest_api",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "nithin",
+    "password": "password",
+    "database": "rest_api",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
